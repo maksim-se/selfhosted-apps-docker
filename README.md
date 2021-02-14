@@ -12,6 +12,7 @@
 * [bitwarden_rs](bitwarden_rs/) - password manager
 * [bookstack](bookstack/) - notes and documentation
 * [borg_backup](borg_backup/) - backup utility
+* [ofelia](ofelia/) - job scheduler
 * [ddclient](ddclient/) - automatic DNS update
 * [dnsmasq](dnsmasq/) - DNS and DHCP server
 * [homer](homer/) - homepage
@@ -23,23 +24,30 @@
 * [wireguard](wireguard/) - the one and only VPN to ever consider
 * [arch_linux_host_install](arch_linux_host_install)
 
+# How to self host various services
+
+You do need to have **basic linux and basic docker-compose knowledge**,
+the shit here is pretty hand holding and detailed, but it still should not be
+your first time running a docker container.
+
+a certain format is followed
+
+* **Purpose & Overview** - basic overview and intented use
+* **Files and directory structure** - lists all the files/folder involved
+ and their placement
+* **docker-compose** - the recipe file how to build a container, with .env file too
+* **Reverse proxy** - reverse proxy specific settings, if a container has
+ a webserver providing web interface
+* **Update** - how to update the container, usually just running Watchtower
+* **Backup and restore** - of the entire container using borg backup
+* **Backup of just user data** - steps to backup databases and other user data
+* **Restore the user data** - steps to restore user data in a brand new setup
+
+
 The core of the setup is Caddy reverse proxy.</br>
 It's described in most details.
 
-You do need to have **basic docker and docker-compose knowledge**,
-shit here is pretty hand holding and detailed, but it still should not be
-your first time running a docker container.
-
 # Some extra info
-
-### Caddy 
-
-When making changes to `Caddyfile`, the config needs to be reloaded afterwards.
-
-On the docker host:<br>
-`docker exec -w /etc/caddy caddy caddy reload`
-
-Assuming container name is kept as `caddy`.
 
 ### Compose
 
@@ -50,7 +58,8 @@ not just restart or stop/start.
 simple copy paste should suffice
 * you **do** need to fuck with `.env` file, that's where all the variables are
   
-Often the `.env` file is used as `env_file`
+Often the `.env` file is used as `env_file`,
+which can be a bit difficult concept at a first glance.
 
 `env_file: .env`
 
@@ -64,12 +73,12 @@ Often the `.env` file is used as `env_file`
   Variables in this file will be available in the running container,
   but not during building of the container.
 
-So a setup having `env_file: .env` in the compose mixes these two together.
+So a compose file having `env_file: .env` mixes these two together.
 
-Benefit is that you do not need to make changes at multiple places,
-adding variable or changing a name in `.env` does not require
-to also go in to compose to add/change it there...</br>
-Also the compose file looks less cramped.
+Benefit is that you do not need to make changes at multiple places.
+Adding variables or changing a name in `.env` does not require you
+to also go in to compose to add/change it there...  also the compose file
+looks much cleaner, less cramped.
 
 Only issue is that **all** variables from the `.env` file are available in
 all containers that use this `env_file: .env` method.</br>
@@ -79,11 +88,11 @@ variable that is intented for a different container of the stack.
 In the setups here it works and is tested, but if you start to use this
 everywhere without understanding it, you can encounter issues.
 So first troubleshooting step should be abandoning `.env` and write out 
-the variables directly in the compose file under containers that want them.
+the variables directly in the compose file only under containers that want them.
 
 ---
 
-### Images latest tag
+### Docker images latest tag
 
 All images are without any tag, which defaults to `latest` tag being used.</br>
 This is [frowned upon](https://vsupalov.com/docker-latest-tag/),
@@ -118,12 +127,11 @@ Though I heard complains lately that is not as easy as it was to register on Sen
 ### Cloudflare
 
 For managing DNS records. The free tier provides lot of managment options and 
-benefits. Like proxy between your domain/subdomain and your server, so no one
+benefits. Like proxy between your domain and your server, so no one
 can get your public IP just from your domain name. Or 5 firewall rules that allow
 you to geoblock whole world except your country.
 
 [How to move to cloudflare.](https://support.cloudflare.com/hc/en-us/articles/205195708-Changing-your-domain-nameservers-to-Cloudflare)
-
 
 ---
 
@@ -143,3 +151,24 @@ It is absofuckinglutely amazing in how simple yet effective it is.
 
 Written in Go, so its super fast and installation is trivial when it is a single binary,
 as likely your distro does not have it in repos. If you use arch, like I do, its on AUR.
+
+
+---
+
+### other guides
+
+[StarWhiz/docker_deployment_notes](https://github.com/StarWhiz/docker_deployment_notes/blob/master/README.md)
+    - got inspired and wrote in similar way setup for various services
+
+* Heimdall - Another Homepage Dashboard
+* FreePBX+Asterisk - VOIP & telephony server
+* Mumble - Voice Chat Before Discord Days
+* PureFTPd - FTP server
+* qBit+windscribe - Torrent Client w/ Windscribe VPN
+* Rocket.chat - Discord / Slack Clone
+* ShinobiCCTV (Not Recommended) - CCTV NVR
+* Seafile - Cloud Drive
+* Ubiquiti UniFi Controller - Management Utility for Ubiquiti Devices
+* Wordpress - CMS / Website Hosting
+* Zoneminder - CCTV NVR
+
