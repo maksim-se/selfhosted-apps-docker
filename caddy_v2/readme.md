@@ -25,17 +25,16 @@ all hosted on your local network.
 
 Caddy is a powerful, enterprise-ready, open source web server with automatic
 HTTPS written in Go.<br>
-
 Web servers are build to deal with http traffic, so they are an obvious choice
 for the function of reverse proxy.
 
 In this setup Caddy is used mostly as
 [a TLS termination proxy](https://www.youtube.com/watch?v=H0bkLsUe3no).<br> 
 Https encrypted tunel ends with it, so that the traffic can be analyzed 
-and dealt with based on the settings in `Caddyfile`.
+and send to a correct webserver based on the settings in `Caddyfile`.
 
-Caddy with its build-in https and and sane config approach
-allows a simple config to just work.
+Caddy with its build-in https and and simple config approach
+allows even most trivial configs to just work:
     
 ```
 whatever.example.com {
@@ -466,7 +465,17 @@ whatever.{$MY_DOMAIN} {
 
 ### HSTS and redirects
 
-Running NextCloud behind any proxy likely shows few warning on its status page.
+Here is an example of a redirect when wanting the common case of
+switching anyone that comes to a `www` subdomain to the naked domain.
+
+```
+www.{$MY_DOMAIN} {
+    redir https://{$MY_DOMAIN}{uri}
+}
+```
+
+Another example is running NextCloud behind proxy,
+which likely shows few warning on its status page.
 It requires some redirects for service discovery to work and would like 
 if [HSTS](https://www.youtube.com/watch?v=kYhMnw4aJTw) would be set.<br> 
 Like so:
